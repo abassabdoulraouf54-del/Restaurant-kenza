@@ -32,7 +32,7 @@ function Page({ children }: { children: ReactNode }) {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/Restaurant-kenza">
       <AuthProvider>
         <SettingsProvider>
           <CartProvider>
