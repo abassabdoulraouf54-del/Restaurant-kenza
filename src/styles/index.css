@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@theme {
+  --color-kenza-orange: #C44A12;
+  --color-kenza-orange-dark: #A33A0B;
+  --color-kenza-black: #1A1411;
+  --color-kenza-cream: #FAF3E6;
+  --color-kenza-sand: #F0E5D0;
+  --color-kenza-gold: #B08A3E;
+  --font-display: "Young Serif", Georgia, serif;
+  --font-sans: "Figtree", system-ui, sans-serif;
+  /* Angles peu arrondis sur les cartes et champs */
+  --radius-xl: 0.25rem;
+  --radius-2xl: 0.375rem;
+}
+
+body {
+  background: var(--color-kenza-cream);
+  color: var(--color-kenza-black);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3 { text-wrap: balance; }
+p { text-wrap: pretty; }
+
+/* Young Serif n'existe qu'en graisse normale : on évite le faux gras */
+.font-display { font-weight: 400; letter-spacing: -0.01em; }
+
+::selection { background: var(--color-kenza-orange); color: #fff; }
+
+a:focus-visible, button:focus-visible, [role="switch"]:focus-visible {
+  outline: 2px solid var(--color-kenza-orange);
+  outline-offset: 3px;
+}
+
+/* Boutons, tags et champs « en pilule » : rectangulaires, angles à peine adoucis.
+   Les boutons ronds d'icônes (sans padding horizontal) restent circulaires. */
+a[class*="rounded-full"][class*="px-"],
+button[class*="rounded-full"][class*="px-"],
+input[class*="rounded-full"],
+select[class*="rounded-full"] {
+  border-radius: 2px;
+}
+
+@layer components {
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.6rem;
+    border-radius: 2px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.2;
+    transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .btn-primary { background: var(--color-kenza-orange); color: #fff; }
+  .btn-primary:hover { background: var(--color-kenza-orange-dark); }
+  .btn-dark { background: var(--color-kenza-black); color: var(--color-kenza-cream); }
+  .btn-dark:hover { background: var(--color-kenza-orange-dark); }
+  .btn-outline { border: 1px solid currentColor; }
+  .btn-outline:hover { background: color-mix(in srgb, currentColor 14%, transparent); }
+}
+
+/* Un seul moment animé : l'arrivée sur l'accueil (désactivé si l'utilisateur le demande) */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: none; }
+  }
+  .hero-in > * { animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+  .hero-in > :nth-child(2) { animation-delay: 0.08s; }
+  .hero-in > :nth-child(3) { animation-delay: 0.16s; }
+  .hero-in > :nth-child(4) { animation-delay: 0.24s; }
+  .hero-card { animation: rise 0.7s 0.3s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+}

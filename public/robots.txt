@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /panier
+Disallow: /commander
+Disallow: /suivi
+
+Sitemap: http://localhost:5173/sitemap.xml

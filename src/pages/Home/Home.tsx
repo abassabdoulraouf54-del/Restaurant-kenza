@@ -1,0 +1,168 @@
+import { Link } from 'react-router-dom'
+import { ArrowRight } from 'lucide-react'
+import ProductCard from '@/components/ProductCard'
+import { RESTAURANT } from '@/lib/constants'
+import { useCatalog } from '@/hooks/useCatalog'
+import { useSettings } from '@/hooks/useSettings'
+import { usePageMeta } from '@/hooks/usePageMeta'
+import { waLink } from '@/utils/whatsapp'
+
+const cooking = [
+  { title: 'Pintades frites', text: 'Dorées, croustillantes et assaisonnées avec soin. La spécialité de la maison.' },
+  { title: 'Brochettes', text: 'Grillées et parfumées, à savourer chaudes, à l’unité ou en plusieurs pièces.' },
+  { title: 'Boissons', text: 'Des boissons fraîches pour accompagner votre repas.' },
+]
+
+const steps = [
+  { title: 'Composez votre panier', text: 'Choisissez vos plats dans le menu. Les prix sont indiqués en FCFA.' },
+  { title: 'Envoyez sur WhatsApp', text: 'Indiquez vos coordonnées : WhatsApp s’ouvre avec votre commande prête à envoyer.' },
+  { title: 'Le restaurant confirme', text: 'Votre commande n’est valable qu’après confirmation du restaurant, qui vérifie la disponibilité et le montant.' },
+  { title: 'Retrait ou livraison', text: 'Récupérez votre commande sur place ou recevez-la chez vous. Suivez son avancement sur la page Suivi.' },
+]
+
+export default function Home() {
+  usePageMeta(
+    'Restaurant Kenza | Pintades frites et brochettes à Magaria, Zinder, Niger',
+    'Restaurant Kenza à Magaria, région de Zinder, Niger : pintades frites, brochettes et boissons. Commandez à emporter ou en livraison sur WhatsApp.',
+  )
+  const catalog = useCatalog()
+  const { settings } = useSettings()
+
+  const name = settings?.name ?? RESTAURANT.name
+  const whatsapp = settings?.whatsapp_number ?? RESTAURANT.whatsappNumber
+  const featured = catalog.products.filter((p) => p.is_featured && p.is_available).slice(0, 3)
+  const categoryName = (id: string) => catalog.categories.find((c) => c.id === id)?.name
+
+  const board: { name: string; count: number | null }[] =
+    !catalog.loading && catalog.categories.length > 0
+      ? catalog.categories.map((c) => ({
+          name: c.name,
+          count: catalog.products.filter((p) => p.category_id === c.id && p.is_available).length,
+        }))
+      : cooking.map((c) => ({ name: c.title, count: null }))
+
+  return (
+    <>
+      {/* Bannière */}
+      <section className="bg-kenza-black text-kenza-cream">
+        <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 md:grid-cols-[1.25fr_1fr] md:items-end md:py-28">
+          <div className="hero-in">
+            <p className="text-kenza-gold">Magaria, région de Zinder, Niger</p>
+            <h1 className="mt-5 font-display text-5xl leading-[1.05] md:text-7xl">
+              Le goût authentique, le plaisir à chaque bouchée.
+            </h1>
+            <p className="mt-6 max-w-lg text-lg text-kenza-cream/75">
+              Pintades frites, brochettes et boissons. Commandez à emporter ou en livraison, directement sur WhatsApp.
+            </p>
+            <div className="mt-10 flex flex-wrap gap-3">
+              <Link to="/menu" className="btn btn-primary">Commander</Link>
+              <Link to="/menu" className="btn btn-outline">Voir le menu</Link>
+            </div>
+          </div>
+
+          <aside className="hero-card border border-kenza-gold bg-kenza-cream p-7 text-kenza-black">
+            <h2 className="font-display text-2xl">La carte</h2>
+            <ul className="mt-5 space-y-3">
+              {catalog.loading
+                ? Array.from({ length: 3 }).map((_, i) => (
+                    <li key={i} className="h-6 animate-pulse bg-kenza-black/10" />
+                  ))
+                : board.map((row) => (
+                    <li key={row.name} className="flex items-baseline gap-2">
+                      <span className="font-medium">{row.name}</span>
+                      <span aria-hidden="true" className="flex-1 -translate-y-1 border-b border-dotted border-kenza-black/40" />
+                      {row.count !== null && (
+                        <span className="text-sm text-kenza-black/60">
+                          {row.count} produit{row.count > 1 ? 's' : ''}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+            </ul>
+            <p className="mt-5 text-sm text-kenza-black/70">À emporter ou en livraison.</p>
+            <Link to="/menu" className="btn btn-dark mt-5 w-full">Voir le menu</Link>
+          </aside>
+        </div>
+      </section>
+
+      {/* Cuisine */}
+      <section className="mx-auto max-w-6xl px-4 py-20 md:py-28">
+        <div className="grid gap-12 md:grid-cols-[1fr_1.4fr]">
+          <div>
+            <h2 className="font-display text-4xl md:text-5xl">Ce que nous cuisinons</h2>
+            <p className="mt-5 max-w-sm whitespace-pre-line text-kenza-black/70">
+              {settings?.description ||
+                'À Magaria, le Restaurant Kenza prépare des pintades frites et des brochettes, à emporter ou en livraison.'}
+            </p>
+          </div>
+          <ul className="divide-y divide-kenza-black/15 border-y border-kenza-black/15">
+            {cooking.map((c) => (
+              <li key={c.title} className="grid gap-1 py-6 sm:grid-cols-[11rem_1fr] sm:gap-6">
+                <h3 className="font-display text-2xl">{c.title}</h3>
+                <p className="text-kenza-black/70">{c.text}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* Produits en vedette */}
+      {(catalog.loading || featured.length > 0) && (
+        <section className="bg-kenza-sand py-20 md:py-24">
+          <div className="mx-auto max-w-6xl px-4">
+            <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-end sm:justify-between">
+              <h2 className="font-display text-4xl md:text-5xl">Nos incontournables</h2>
+              <Link
+                to="/menu"
+                className="group inline-flex items-center gap-2 rounded-full border border-kenza-black px-6 py-2.5 text-sm font-semibold text-kenza-black transition-colors hover:border-kenza-orange hover:bg-kenza-orange hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-kenza-orange focus-visible:ring-offset-2 focus-visible:ring-offset-kenza-sand"
+              >
+                Voir tout le menu
+                <ArrowRight size={16} aria-hidden="true" className="transition-transform group-hover:translate-x-1" />
+              </Link>
+            </div>
+            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {catalog.loading
+                ? Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-80 animate-pulse bg-kenza-black/10" />)
+                : featured.map((p) => (
+                    <ProductCard key={p.id} product={p} categoryName={categoryName(p.category_id)} />
+                  ))}
+            </div>
+            <p className="mt-6 text-sm text-kenza-black/60">
+              Prix indicatifs, confirmés par le restaurant lors de la commande.
+            </p>
+          </div>
+        </section>
+      )}
+
+      {/* Comment commander */}
+      <section className="mx-auto max-w-6xl px-4 py-20 md:py-28">
+        <h2 className="font-display text-4xl md:text-5xl">Comment commander</h2>
+        <ol className="mt-12 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+          {steps.map((s, i) => (
+            <li key={s.title} className="border-t-2 border-kenza-black pt-5">
+              <span className="font-display text-4xl text-kenza-orange">{i + 1}</span>
+              <h3 className="mt-3 text-lg font-semibold">{s.title}</h3>
+              <p className="mt-2 text-sm text-kenza-black/70">{s.text}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* Appel à l'action */}
+      <section className="bg-kenza-orange text-white">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-8 px-4 py-16">
+          <div className="max-w-xl">
+            <h2 className="font-display text-4xl md:text-5xl">Une envie de pintade ou de brochettes ?</h2>
+            <p className="mt-3 text-white/85">Composez votre commande en quelques clics.</p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link to="/menu" className="btn btn-dark">Commander maintenant</Link>
+            <a href={waLink(whatsapp, `Bonjour ${name} !`)} target="_blank" rel="noopener noreferrer" className="btn btn-outline">
+              Écrire sur WhatsApp
+            </a>
+          </div>
+        </div>
+      </section>
+    </>
+  )
+}
